@@ -11,10 +11,10 @@ output "efs_volume_handle" {
   value = "${aws_efs_file_system.wordpress_efs.id}::${aws_efs_access_point.wordpress_ap.id}"
 }
 
-output "aurora_endpoint" {
-  value = aws_rds_cluster.aurora.endpoint
-}
+# output "aurora_endpoint" {
+#   value = aws_rds_cluster.aurora.endpoint
+# }
 
-output "db_secret_arn" {
-  value = aws_secretsmanager_secret.db_secret.arn
-}
+# output "db_secret_arn" {
+#   value = aws_secretsmanager_secret.db_secret.arn
+# }
