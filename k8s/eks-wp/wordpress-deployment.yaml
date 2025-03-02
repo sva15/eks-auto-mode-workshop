@@ -14,7 +14,7 @@ spec:
         app: wordpress
         tier: frontend
     spec:
-      serviceAccountName: wordpress-deployment-demo-sa-updated # Ensure IAM role is associated
+      serviceAccountName: wordpress-deployment-sa # Ensure IAM role is associated
       containers:
       - name: wordpress
         image: wordpress:php8.1-apache  # Updated to PHP 8.1

@@ -25,7 +25,7 @@ resource "aws_security_group" "aurora_sg" {
 
 # Store Database Credentials in AWS Secrets Manager
 resource "aws_secretsmanager_secret" "db_secret" {
-  name = "${var.cluster_name}-aurora-db-secret-demo"
+  name = "mysql-db-secret"
 }
 
 resource "aws_secretsmanager_secret_version" "db_secret_version" {
