@@ -1,39 +1,3 @@
-apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: efs-sc
-provisioner: efs.csi.aws.com
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: wordpress-efs-pv
-spec:
-  capacity:
-    storage: 5Gi
-  volumeMode: Filesystem
-  accessModes:
-    - ReadWriteMany
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: efs-sc
-  csi:
-    driver: efs.csi.aws.com
-    volumeHandle: "fs-0fcb78e173efe62c2::fsap-020085d5a3bb15fbe"
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: wordpress-efs-pvc
-  labels:
-    app: wordpress
-spec:
-  accessModes:
-    - ReadWriteMany
-  storageClassName: efs-sc
-  resources:
-    requests:
-      storage: 5Gi
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -50,7 +14,7 @@ spec:
         app: wordpress
         tier: frontend
     spec:
-      serviceAccountName: wordpress-deployment-sa  # Ensure IAM role is associated
+      serviceAccountName: wordpress-deployment-demo-sa-updated # Ensure IAM role is associated
       containers:
       - name: wordpress
         image: wordpress:php8.1-apache  # Updated to PHP 8.1
@@ -65,7 +29,6 @@ spec:
         args:
           - export WORDPRESS_DB_USER=$(cat /mnt/secrets-store/db_username);
             export WORDPRESS_DB_PASSWORD=$(cat /mnt/secrets-store/db_password);
-            echo "define('WP_DEBUG', true);" >> /var/www/html/wp-config.php;
             apache2-foreground;
         volumeMounts:
         - name: wordpress-persistent-storage

@@ -69,12 +69,12 @@ helm install -n kube-system secrets-provider-aws aws-secrets-manager/secrets-sto
 export CLUSTERNAME="sandbox-vpc-eks-test"
 export REGION="us-west-2"
 
-POLICY_ARN=$(aws --region "$REGION" --query Policy.Arn --output text iam create-policy --policy-name wordpress-deployment-policy --policy-document '{
+POLICY_ARN=$(aws --region "$REGION" --query Policy.Arn --output text iam create-policy --policy-name wordpress-deployment-demo-policy --policy-document '{
     "Version": "2012-10-17",
     "Statement": [ {
         "Effect": "Allow",
         "Action": ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"],
-        "Resource": ["arn:aws:secretsmanager:us-west-2:120717539064:secret:sandbox-vpc-eks-test-aurora-db-secret-995I4K"]
+        "Resource": ["arn:aws:secretsmanager:us-west-2:120717539064:secret:sandbox-vpc-eks-test-aurora-db-secret-demo-fXLKbX"]
     } ]
 }')
 
@@ -126,8 +126,27 @@ kubectl exec -it $(kubectl get pods | awk '/nginx-pod-identity-deployment/{print
 
 final setup:
 
+elm repo add aws-secrets-manager https://aws.github.io/secrets-store-csi-driver-provider-aws
+helm install -n kube-system secrets-provider-aws aws-secrets-manager/secrets-store-csi-driver-provider-aws
 
-eksctl create iamserviceaccount --name wordpress-deployment-sa --region="$REGION" --cluster "$CLUSTERNAME" --attach-policy-arn "$POLICY_ARN" --approve --override-existing-serviceaccounts
+export CLUSTERNAME="sandbox-vpc-eks-test"
+export REGION="us-west-2"
+
+POLICY_ARN=$(aws --region "$REGION" --query Policy.Arn --output text iam create-policy --policy-name wordpress-deployment-demo-updated-policy --policy-document '{
+    "Version": "2012-10-17",
+    "Statement": [ {
+        "Effect": "Allow",
+        "Action": ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"],
+        "Resource": ["arn:aws:secretsmanager:us-west-2:120717539064:secret:sandbox-vpc-eks-test-aurora-db-secret-*"]
+    } ]
+}')
+
+
+
+
+eksctl utils associate-iam-oidc-provider --region="$REGION" --cluster="$CLUSTERNAME" --approve # Only run this once
+
+eksctl create iamserviceaccount --name wordpress-deployment-demo-sa-updated --region="$REGION" --cluster "$CLUSTERNAME" --attach-policy-arn "$POLICY_ARN" --approve --override-existing-serviceaccounts
 
 
 
